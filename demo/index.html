@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0b1117">
+  <meta name="description" content="Interactive Express.js middleware playground. Test validation, Basic Authorization, role-based access demos, and REST API requests.">
+  <title>Express Middleware Playground — Homework 02</title>
+  <link rel="icon" type="image/svg+xml" href="./favicon.svg">
+  <link rel="stylesheet" href="./styles.css">
+  <script src="./app.js" type="module"></script>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <a class="brand" href="#top" aria-label="Express Middleware Playground home">
+        <span class="brand-mark">e.</span>
+        <span class="brand-name">express.js <small>HOMEWORK 02</small></span>
+      </a>
+      <div class="navigation">
+        <div class="nav-section-label">WORKSPACE</div>
+        <a class="nav-active" href="#playground"><span class="nav-icon">⌘</span> Middleware lab <span class="nav-arrow">↗</span></a>
+        <div class="nav-section-label nav-collections-label">COLLECTIONS</div>
+        <button type="button" class="collection-tab active" data-resource="users" aria-pressed="true"><span class="collection-icon">◎</span><span>Users</span><span class="count-pill" id="usersCount">2</span></button>
+        <button type="button" class="collection-tab" data-resource="articles" aria-pressed="false"><span class="collection-icon">▤</span><span>Articles</span><span class="count-pill" id="articlesCount">2</span></button>
+      </div>
+      <div class="sidebar-bottom">
+        <div class="side-note"><span class="status-light"></span><strong>Express 5 · Middleware</strong><p>Inspect a request as it passes through validation, auth, access checks, and CRUD controllers.</p></div>
+        <a class="sidebar-repo" href="https://github.com/andrii-dolzhenko/express-homework-02-middleware" target="_blank" rel="noopener noreferrer">View repository <span>↗</span></a>
+      </div>
+    </aside>
+
+    <main class="main-content" id="top">
+      <header class="topbar"><span class="breadcrumb">EXPRESS <span>/</span> HOMEWORK 02 <span>/</span> MIDDLEWARE</span><span class="connection"><span class="status-light"></span><span id="environmentLabel">CHECKING MODE</span></span></header>
+      <section class="hero">
+        <div class="eyebrow"><span class="eyebrow-line"></span> REQUEST LIFECYCLE LAB</div>
+        <h1>Build requests.<br><em>Control the flow.</em></h1>
+        <p>See what happens when an HTTP request meets authentication, input validation, and access control. Experiment with real status codes and inspect your data.</p>
+        <div class="tech-tags"><span>Node.js</span><span>Express 5</span><span>Middleware</span><span>REST API</span></div>
+      </section>
+
+      <section class="mode-notice" role="status" aria-live="polite"><span class="notice-symbol">ⓘ</span><div><strong id="modeTitle">Detecting environment</strong><p id="modeDescription">Checking whether the live Express API is available.</p></div></section>
+
+      <section class="quick-section" aria-label="Quick demonstrations">
+        <span class="quick-label">TRY A SCENARIO</span>
+        <div class="quick-actions">
+          <button type="button" data-scenario="401"><span class="quick-status error">401</span> Missing auth</button>
+          <button type="button" data-scenario="403"><span class="quick-status error">403</span> Access denied</button>
+          <button type="button" data-scenario="400"><span class="quick-status warn">400</span> Bad input</button>
+          <button type="button" data-scenario="404"><span class="quick-status warn">404</span> Missing record</button>
+        </div>
+      </section>
+
+      <section class="workbench" id="playground" aria-label="API playground">
+        <div class="panel request-panel">
+          <div class="panel-header"><div><span class="panel-kicker">01 / REQUEST</span><h2>Request builder</h2></div><span class="panel-glyph" aria-hidden="true">↗</span></div>
+          <form id="requestForm" class="panel-body">
+            <label class="field-label">OPERATION</label>
+            <div class="operations" role="group" aria-label="HTTP operation">
+              <button type="button" class="operation active" data-operation="list" aria-pressed="true"><span class="method get">GET</span> List</button>
+              <button type="button" class="operation" data-operation="read" aria-pressed="false"><span class="method get">GET</span> By ID</button>
+              <button type="button" class="operation" data-operation="create" aria-pressed="false"><span class="method post">POST</span> Create</button>
+              <button type="button" class="operation" data-operation="strict" aria-pressed="false"><span class="method post">POST</span> Strict</button>
+              <button type="button" class="operation" data-operation="update" aria-pressed="false"><span class="method put">PUT</span> Update</button>
+              <button type="button" class="operation" data-operation="delete" aria-pressed="false"><span class="method delete">DEL</span> Delete</button>
+            </div>
+
+            <div class="field-group"><span class="field-label">ENDPOINT</span><div class="endpoint-preview"><span class="method get" id="endpointMethod">GET</span><code id="endpointPath">/users</code><span class="endpoint-port">:3000</span></div></div>
+
+            <div class="field-group hidden" id="idField"><label class="field-label" for="recordId">RESOURCE ID</label><input id="recordId" name="recordId" type="text" autocomplete="off" spellcheck="false" placeholder="e.g. test-user-1"><p class="field-hint">Select a record below to fill its ID.</p></div>
+            <div class="field-group hidden" id="valueField"><label class="field-label" for="recordValue" id="valueLabel">NAME</label><input id="recordValue" name="recordValue" type="text" autocomplete="off" placeholder="e.g. Ada Lovelace"><p class="field-hint" id="validationHint">Required · max 100 characters · whitespace is trimmed.</p></div>
+
+            <div class="middleware-controls"><div class="control-header"><span class="field-label">MIDDLEWARE CONTROLS</span><span class="controls-subtitle">Demo headers</span></div>
+              <label class="select-label" for="authMode">Authorization</label>
+              <select id="authMode" name="authMode"><option value="none">None — no Authorization header</option><option value="basic">Basic test:test — demo user</option><option value="admin">Basic admin — demo administrator</option><option value="bearer">Bearer token123 — invalid for strict auth</option></select>
+              <label class="check-row"><input type="checkbox" id="requireAuth"><span><strong>Require Basic auth</strong><small>x-require-auth: true</small></span></label>
+              <label class="check-row" id="accessControlRow"><input type="checkbox" id="strictAccess"><span><strong>Require admin for article DELETE</strong><small>x-require-strict-access: true</small></span></label>
+              <label class="check-row hidden" id="invalidJsonRow"><input type="checkbox" id="invalidJson"><span><strong>Send malformed JSON</strong><small>Test the JSON parser's 400 response</small></span></label>
+            </div>
+            <button class="send-button" id="sendButton" type="submit"><span>Send request</span><span aria-hidden="true">↗</span></button>
+            <div class="request-actions"><button type="button" class="text-button" id="copyCurl">Copy cURL command <span>↗</span></button><button type="button" class="text-button" id="pingRoot">Ping GET / <span>↗</span></button></div>
+          </form>
+        </div>
+
+        <div class="panel response-panel">
+          <div class="panel-header"><div><span class="panel-kicker">02 / RESPONSE</span><h2>Server response</h2></div><span class="response-status" id="statusBadge">READY</span></div>
+          <div class="response-meta"><span id="responseMethod">GET</span><span id="responsePath">/users</span><span id="responseTime">— ms</span></div>
+          <div class="response-toolbar"><span>RESPONSE BODY</span><button type="button" class="text-button" id="copyResponse">Copy ⧉</button></div>
+          <pre class="response-code" id="responseBody" aria-live="polite">// Send a request to inspect the response.
+// Try 401, 403, 400, or 404 using the scenario buttons.</pre>
+          <div class="response-note"><span>↳</span><span id="responseNote">Responses are generated by Express locally or simulated in browser memory on the static preview.</span></div>
+          <div class="pipeline"><div class="pipeline-heading">ROUTE MIDDLEWARE <span>Configured pipeline · not a live trace</span></div><div class="pipeline-steps" id="pipelineSteps" aria-live="polite"><span class="pipeline-chip">Logging</span><span class="pipeline-chip">Demo auth</span><span class="pipeline-chip">Strict auth</span><span class="pipeline-chip">Controller</span></div></div>
+        </div>
+      </section>
+
+      <section class="collection-section" id="collection"><div class="section-heading"><div><span class="panel-kicker">03 / IN-MEMORY DATA</span><h2>Current <span id="collectionName">/users</span></h2><p>Click a record to copy its ID into the request builder.</p></div><div class="collection-actions"><button type="button" class="outline-button" id="refreshCollection">↻ Refresh</button><button type="button" class="outline-button hidden" id="resetDemo">Reset simulation</button></div></div><div class="records-grid" id="recordsGrid" aria-live="polite"><div class="records-empty">Loading records…</div></div></section>
+      <footer class="footer"><span>Express.js · Homework 02 · Middleware</span><span>Copyright © 2026 Andrii Dolzhenko.</span></footer>
+    </main>
+  </div>
+</body>
+</html>

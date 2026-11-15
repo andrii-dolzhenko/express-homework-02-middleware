@@ -18,6 +18,16 @@ npm start
 
 The server listens at `http://localhost:3000`. For auto-restart during development, run `npm run dev`.
 
+## Interactive Middleware Playground
+
+Start the Express server and open **http://localhost:3000/demo/** to send actual requests to the API.
+
+The standalone `demo/` directory can also be hosted on GitHub Pages. Because Pages serves static files only, that version is explicitly labeled **Browser simulation · no hosted backend**; it reproduces the documented demo middleware rules and stores records only in browser memory. Reload the page or click **Reset simulation** to restore its initial data. It does not call a hosted Node.js service.
+
+The request builder covers users/articles CRUD, strict POST routes, optional `x-require-auth` and `x-require-strict-access` headers, example Basic/Bearer Authorization values, overlong-field validation, malformed JSON, and common 400/401/403/404 scenarios. **Copy cURL** generates a command for the real local server. The middleware pipeline is a *configuration overview*, not a recorded server execution trace; actual logs appear in the Node.js terminal.
+
+The header-based auth and admin examples are **educational stubs** provided for the assignment. They do not verify identity or securely manage sessions, and must not be used as production authorization.
+
 ## API Endpoints
 
 | Method | Endpoint | Description |
@@ -92,6 +102,12 @@ The two instructor-provided test suites cover 23 original REST API tests and 9 m
 ## Project Structure
 
 ```text
+demo/
+├── index.html
+├── app.js
+├── styles.css
+└── favicon.svg
+
 src/
 ├── ASSIGNMENT.md
 ├── __test__/

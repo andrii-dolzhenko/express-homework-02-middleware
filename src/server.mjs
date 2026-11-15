@@ -1,6 +1,7 @@
 // Express REST API із модульною архітектурою та навчальними middleware
 
 import express from 'express'
+import { resolve } from 'node:path'
 import router from './routes/index.mjs'
 import { logRequests } from './middlewares/logRequests.mjs'
 
@@ -15,6 +16,9 @@ app.use(logRequests)
 
 // Маршрути
 app.use(router)
+
+// Interactive browser playground: localhost uses the real API; Pages runs a simulation.
+app.use('/demo', express.static(resolve(process.cwd(), 'demo')))
 
 // Обробка помилок для неіснуючих маршрутів
 app.use((req, res) => {
@@ -40,7 +44,8 @@ Routes:
   GET                 /
   GET, POST           /users, /articles
   GET, PUT, DELETE    /users/:userId, /articles/:articleId
-  POST                /users/strict, /articles/strict`)
+  POST                /users/strict, /articles/strict
+  GET                 /demo/  (interactive playground)`)
   console.log(`
 Middleware:
   logRequests          Request metadata and redacted POST/PUT bodies
