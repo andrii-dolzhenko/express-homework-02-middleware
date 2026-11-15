@@ -1,5 +1,4 @@
-// Базовий RESTful API сервер — модульна структура для HW-02
-// Мідлвари будуть додані окремими кроками без зміни роботи CRUD
+// Express REST API із модульною архітектурою та навчальними middleware
 
 import express from 'express'
 import router from './routes/index.mjs'
@@ -24,12 +23,36 @@ app.use((req, res) => {
 
 // Глобальна обробка помилок
 app.use((err, req, res, next) => {
+  if (res.headersSent) return next(err)
+
+  if (err.status === 400 && err.type === 'entity.parse.failed') {
+    return res.status(400).send('Bad Request')
+  }
+
   console.error(`[ERROR] ${new Date().toISOString()} - ${err.message}`)
-  res.status(500).send('Internal Server Error')
+  return res.status(500).send('Internal Server Error')
 })
 
 const server = app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`)
+  console.log(`Server running at http://localhost:${PORT}`)
+  console.log(`
+Routes:
+  GET                 /
+  GET, POST           /users, /articles
+  GET, PUT, DELETE    /users/:userId, /articles/:articleId
+  POST                /users/strict, /articles/strict`)
+  console.log(`
+Middleware:
+  logRequests          Request metadata and redacted POST/PUT bodies
+  demoAuth / strictAuth  Optional Basic-header verification
+  validation           User name <= 100; article title <= 200
+  demoArticleAccess    Admin-only DELETE when strict access is enabled
+  resourceExists       404 on missing users or articles`)
+  console.log(`
+Try strict modes:
+  curl -i -X POST http://localhost:${PORT}/users/strict -H 'Content-Type: application/json' -H 'Authorization: Basic dGVzdDp0ZXN0' -d '{"name":"Demo User"}'
+  curl -i -X DELETE http://localhost:${PORT}/articles/test-article-1 -H 'x-require-strict-access: true' -H 'Authorization: Basic admin'
+`)
 })
 
 export { server, app }
