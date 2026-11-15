@@ -3,12 +3,16 @@
 
 import express from 'express'
 import router from './routes/index.mjs'
+import { logRequests } from './middlewares/logRequests.mjs'
 
 const PORT = 3000
 const app = express()
 
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
+
+// Глобальний middleware логування після парсерів тіла запиту
+app.use(logRequests)
 
 // Маршрути
 app.use(router)
