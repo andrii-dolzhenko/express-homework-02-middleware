@@ -1,7 +1,7 @@
 {
-  "name": "express-hw02-tests",
+  "name": "express-homework-02-middleware",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "src/server.mjs",
   "license": "MIT",
   "devDependencies": {
     "@testing-library/jest-dom": "^6.6.3",
