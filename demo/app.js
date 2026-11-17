@@ -247,6 +247,54 @@ function chooseScenario(code) {
   updateBuilder()
   runRequest(buildRequest())
 }
+// A separate lesson on stateful requests. No cookies are faked on GitHub Pages.
+let simulatedSessionVisits = 0
+async function runSessionRequest(method) {
+  const visit = byId('visitSession')
+  const reset = byId('resetSession')
+  visit.disabled = true
+  reset.disabled = true
+  try {
+    let status, body
+    if (LIVE) {
+      const response = await fetch(`${API_ORIGIN}/session`, { method, credentials: 'same-origin' })
+      status = response.status
+      body = await response.text()
+      if (!response.ok) throw new Error(`HTTP ${status}: ${body || response.statusText}`)
+    } else {
+      if (method === 'DELETE') {
+        simulatedSessionVisits = 0
+        status = 204
+        body = ''
+      } else {
+        status = 200
+        body = `Visits: ${++simulatedSessionVisits}`
+      }
+    }
+    byId('sessionStatus').classList.remove('bad')
+    byId('sessionStatus').textContent = status === 200 ? '200 OK' : '204 NO CONTENT'
+    byId('sessionResponse').textContent = status === 204 ? '(empty response body)' : body
+    if (status === 204) {
+      byId('sessionCount').textContent = '—'
+      byId('sessionDetails').textContent = 'Session cleared. Click Visit session to start a new one.'
+    } else {
+      const match = /^Visits: (\d+)$/.exec(body.trim())
+      if (!match) throw new Error('Unexpected session response')
+      byId('sessionCount').textContent = match[1]
+      byId('sessionDetails').textContent = LIVE
+        ? 'The server saves your count. Your browser sends the HttpOnly session-ID cookie automatically.'
+        : 'Preview only: this count lives in browser JavaScript memory, with no real cookie or server.'
+    }
+  } catch (error) {
+    byId('sessionStatus').textContent = 'ERROR'
+    byId('sessionStatus').classList.add('bad')
+    byId('sessionResponse').textContent = error.message
+    byId('sessionDetails').textContent = 'Check that the Express server is running on localhost:3000.'
+  } finally {
+    visit.disabled = false
+    reset.disabled = false
+  }
+}
 function quoteShell(str) { return `'${String(str).replace(/'/g, `'\\''`)}'` }
 function curlCommand(request) {
   const base = `curl -i -X ${request.method} ${quoteShell(`http://localhost:3000${request.path}`)}`
@@ -280,13 +328,19 @@ byId('resetDemo').addEventListener('click', () => {
   refreshCollection()
 })
 byId('pingRoot').addEventListener('click', () => runRequest({ method: 'GET', path: '/', resource: '', headers: {} }))
+byId('visitSession').addEventListener('click', () => runSessionRequest('GET'))
+byId('resetSession').addEventListener('click', () => runSessionRequest('DELETE'))
 byId('copyResponse').addEventListener('click', (event) => copyText(state.lastResponse, event.currentTarget))
 byId('copyCurl').addEventListener('click', (event) => copyText(curlCommand(buildRequest()), event.currentTarget))
 if (LIVE) {
+  byId('sessionMode').textContent = 'SERVER COOKIE'
+  byId('sessionHint').textContent = 'Local only: a real HttpOnly session-ID cookie. The server stores visit counts in memory until reset or restart.'
   byId('environmentLabel').textContent = 'LIVE EXPRESS API'
   byId('modeTitle').textContent = 'Connected to local Express · real HTTP requests'
   byId('modeDescription').textContent = 'Requests are sent to localhost:3000. Records change on the running Node.js server and reset when it restarts. The middleware flow below describes configuration, not collected server logs.'
 } else {
+  byId('sessionMode').textContent = 'BROWSER SIMULATION'
+  byId('sessionHint').textContent = 'Static preview only: session visits are simulated in browser memory. GitHub Pages does not run Express or issue a real session cookie.'
   byId('environmentLabel').textContent = 'INTERACTIVE PREVIEW'
   byId('modeTitle').textContent = 'Browser simulation · no hosted backend'
   byId('modeDescription').textContent = 'Static hosting cannot run Express. This educational preview simulates the tested middleware rules and CRUD responses in browser memory; it resets when reloaded. To use the real API, run npm start and open localhost:3000/demo/.'

@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#0b1117">
-  <meta name="description" content="Interactive Express.js middleware playground. Test validation, Basic Authorization, role-based access demos, and REST API requests.">
+  <meta name="description" content="Interactive Express.js middleware playground. Test validation, Basic Authorization, access control, REST API requests, and session cookies.">
   <title>Express Middleware Playground — Homework 02</title>
   <link rel="icon" type="image/svg+xml" href="./favicon.svg">
   <link rel="stylesheet" href="./styles.css">
@@ -20,6 +20,7 @@
       <div class="navigation">
         <div class="nav-section-label">WORKSPACE</div>
         <a class="nav-active" href="#playground"><span class="nav-icon">⌘</span> Middleware lab <span class="nav-arrow">↗</span></a>
+        <a class="nav-secondary" href="#session"><span class="nav-icon">◷</span> Session visits <span class="nav-arrow">↗</span></a>
         <div class="nav-section-label nav-collections-label">COLLECTIONS</div>
         <button type="button" class="collection-tab active" data-resource="users" aria-pressed="true"><span class="collection-icon">◎</span><span>Users</span><span class="count-pill" id="usersCount">2</span></button>
         <button type="button" class="collection-tab" data-resource="articles" aria-pressed="false"><span class="collection-icon">▤</span><span>Articles</span><span class="count-pill" id="articlesCount">2</span></button>
@@ -36,7 +37,7 @@
         <div class="eyebrow"><span class="eyebrow-line"></span> REQUEST LIFECYCLE LAB</div>
         <h1>Build requests.<br><em>Control the flow.</em></h1>
         <p>See what happens when an HTTP request meets authentication, input validation, and access control. Experiment with real status codes and inspect your data.</p>
-        <div class="tech-tags"><span>Node.js</span><span>Express 5</span><span>Middleware</span><span>REST API</span></div>
+        <div class="tech-tags"><span>Node.js</span><span>Express 5</span><span>Middleware</span><span>REST API</span><span>Sessions</span></div>
       </section>
 
       <section class="mode-notice" role="status" aria-live="polite"><span class="notice-symbol">ⓘ</span><div><strong id="modeTitle">Detecting environment</strong><p id="modeDescription">Checking whether the live Express API is available.</p></div></section>
@@ -93,7 +94,28 @@
         </div>
       </section>
 
-      <section class="collection-section" id="collection"><div class="section-heading"><div><span class="panel-kicker">03 / IN-MEMORY DATA</span><h2>Current <span id="collectionName">/users</span></h2><p>Click a record to copy its ID into the request builder.</p></div><div class="collection-actions"><button type="button" class="outline-button" id="refreshCollection">↻ Refresh</button><button type="button" class="outline-button hidden" id="resetDemo">Reset simulation</button></div></div><div class="records-grid" id="recordsGrid" aria-live="polite"><div class="records-empty">Loading records…</div></div></section>
+      <section class="session-section" id="session" aria-label="Session visits demonstration">
+        <div class="session-card">
+          <div class="session-description">
+            <span class="panel-kicker">03 / STATEFUL MIDDLEWARE</span>
+            <h2>Session <em>visits.</em></h2>
+            <p>Unlike a stateless REST request, this endpoint remembers how many times <strong>your browser</strong> has visited. The Express server stores the counter; your browser sends only an HttpOnly session-ID cookie.</p>
+            <div class="session-controls">
+              <button type="button" class="session-visit" id="visitSession">Visit session <span aria-hidden="true">↗</span></button>
+              <button type="button" class="session-reset" id="resetSession">Reset session</button>
+            </div>
+            <p class="session-caveat" id="sessionHint">Local Express: a real cookie and server-side session. Static preview: a clearly labeled in-memory simulation.</p>
+          </div>
+          <div class="session-monitor">
+            <div class="session-monitor-header"><code>GET /session</code><span id="sessionMode">CHECKING MODE</span></div>
+            <div class="session-count"><strong id="sessionCount">—</strong><span>Visits in this session</span></div>
+            <div class="session-monitor-response"><span id="sessionStatus" aria-live="polite">READY</span><code id="sessionResponse" aria-live="polite">// Click “Visit session” to begin</code></div>
+            <p id="sessionDetails">The counter increments only when you visit this endpoint.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="collection-section" id="collection"><div class="section-heading"><div><span class="panel-kicker">04 / IN-MEMORY DATA</span><h2>Current <span id="collectionName">/users</span></h2><p>Click a record to copy its ID into the request builder.</p></div><div class="collection-actions"><button type="button" class="outline-button" id="refreshCollection">↻ Refresh</button><button type="button" class="outline-button hidden" id="resetDemo">Reset simulation</button></div></div><div class="records-grid" id="recordsGrid" aria-live="polite"><div class="records-empty">Loading records…</div></div></section>
       <footer class="footer"><span>Express.js · Homework 02 · Middleware</span><span>Copyright © 2026 Andrii Dolzhenko.</span></footer>
     </main>
   </div>
