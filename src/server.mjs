@@ -1,8 +1,10 @@
 // Express REST API із модульною архітектурою та навчальними middleware
 
 import express from 'express'
+import { resolve } from 'node:path'
 import router from './routes/index.mjs'
 import { logRequests } from './middlewares/logRequests.mjs'
+import { sessionMiddleware } from './middlewares/session.mjs'
 
 const PORT = 3000
 const app = express()
@@ -13,8 +15,14 @@ app.use(express.urlencoded({ extended: true }))
 // Глобальний middleware логування після парсерів тіла запиту
 app.use(logRequests)
 
+// Навчальні сесії: cookie містить лише ID; дані зберігаються на сервері.
+app.use(sessionMiddleware)
+
 // Маршрути
 app.use(router)
+
+// Interactive browser playground: localhost uses the real API; Pages runs a simulation.
+app.use('/demo', express.static(resolve(process.cwd(), 'demo')))
 
 // Обробка помилок для неіснуючих маршрутів
 app.use((req, res) => {
@@ -40,14 +48,17 @@ Routes:
   GET                 /
   GET, POST           /users, /articles
   GET, PUT, DELETE    /users/:userId, /articles/:articleId
-  POST                /users/strict, /articles/strict`)
+  POST                /users/strict, /articles/strict
+  GET                 /demo/  (interactive playground)
+  GET, DELETE         /session  (server-side session visits)`)
   console.log(`
 Middleware:
   logRequests          Request metadata and redacted POST/PUT bodies
   demoAuth / strictAuth  Optional Basic-header verification
   validation           User name <= 100; article title <= 200
   demoArticleAccess    Admin-only DELETE when strict access is enabled
-  resourceExists       404 on missing users or articles`)
+  resourceExists       404 on missing users or articles
+  express-session      Server-side visit counter; HttpOnly session-ID cookie`)
   console.log(`
 Try strict modes:
   curl -i -X POST http://localhost:${PORT}/users/strict -H 'Content-Type: application/json' -H 'Authorization: Basic dGVzdDp0ZXN0' -d '{"name":"Demo User"}'
